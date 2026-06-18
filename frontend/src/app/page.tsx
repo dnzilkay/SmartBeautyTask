@@ -1,65 +1,151 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { SkinTypeSelector } from '@/components/SkinTypeSelector';
+import { ProductGrid } from '@/components/ProductGrid';
+import { ProductSkeleton } from '@/components/ProductSkeleton';
+import { ApiError, fetchProducts } from '@/lib/api';
+import {
+  SKIN_TYPE_LABELS,
+  type Product,
+  type SkinType,
+} from '@/lib/types';
+
+type Phase =
+  | { status: 'selecting' }
+  | { status: 'loading'; skinType: SkinType }
+  | { status: 'results'; skinType: SkinType; products: Product[] }
+  | { status: 'error'; skinType: SkinType; message: string };
+
+export default function HomePage() {
+  const [phase, setPhase] = useState<Phase>({ status: 'selecting' });
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => abortRef.current?.abort();
+  }, []);
+
+  const runFetch = useCallback(async (skinType: SkinType) => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    setPhase({ status: 'loading', skinType });
+
+    try {
+      const data = await fetchProducts(skinType, controller.signal);
+      if (controller.signal.aborted) return;
+      setPhase({ status: 'results', skinType, products: data.products });
+    } catch (err) {
+      if (controller.signal.aborted) return;
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+      const message =
+        err instanceof ApiError ? err.message : 'Beklenmeyen bir hata oluştu.';
+      setPhase({ status: 'error', skinType, message });
+    }
+  }, []);
+
+  const handleSelect = useCallback(
+    (skinType: SkinType) => {
+      void runFetch(skinType);
+    },
+    [runFetch],
+  );
+
+  const handleReset = useCallback(() => {
+    abortRef.current?.abort();
+    setPhase({ status: 'selecting' });
+  }, []);
+
+  if (phase.status === 'selecting') {
+    return <SkinTypeSelector onSelect={handleSelect} />;
+  }
+
+  if (phase.status === 'loading') {
+    return <ProductSkeleton />;
+  }
+
+  if (phase.status === 'error') {
+    return (
+      <section className="text-center max-w-md mx-auto" aria-live="polite">
+        <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-rose-100 text-rose-600 mb-4">
+          <svg
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+            aria-hidden
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+            />
+          </svg>
+        </div>
+        <h2 className="text-xl font-semibold text-slate-900 mb-2">
+          Bir şeyler ters gitti
+        </h2>
+        <p className="text-slate-600 mb-6">{phase.message}</p>
+        <div className="flex gap-3 justify-center">
+          <button
+            type="button"
+            onClick={() => runFetch(phase.skinType)}
+            className="px-5 py-2.5 rounded-full bg-slate-900 text-white text-sm font-medium hover:bg-rose-500 transition-colors"
+          >
+            Tekrar dene
+          </button>
+          <button
+            type="button"
+            onClick={handleReset}
+            className="px-5 py-2.5 rounded-full border border-slate-300 text-sm font-medium text-slate-700 hover:bg-white/60 transition-colors"
+          >
+            Geri dön
+          </button>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <section>
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-rose-500/80 mb-2">
+            Sana özel
+          </p>
+          <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
+            {SKIN_TYPE_LABELS[phase.skinType]} cilt için öneriler
+          </h2>
+          <p className="mt-2 text-slate-600">
+            {phase.products.length} ürün senin için seçildi.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <button
+          type="button"
+          onClick={handleReset}
+          className="self-start md:self-auto inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-300 bg-white/60 backdrop-blur-md text-sm font-medium text-slate-700 hover:bg-white/90 transition-colors"
+        >
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+            aria-hidden
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          </svg>
+          Cilt tipini değiştir
+        </button>
+      </header>
+
+      <ProductGrid products={phase.products} />
+    </section>
   );
 }
