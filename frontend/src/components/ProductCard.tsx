@@ -10,6 +10,7 @@ import type { Product } from '@/lib/types';
 interface ProductCardProps {
   product: Product;
   featured?: boolean;
+  enterIndex?: number;
 }
 
 const priceFormatter = new Intl.NumberFormat('tr-TR', {
@@ -18,7 +19,11 @@ const priceFormatter = new Intl.NumberFormat('tr-TR', {
   maximumFractionDigits: 0,
 });
 
-export function ProductCard({ product, featured = false }: ProductCardProps) {
+export function ProductCard({
+  product,
+  featured = false,
+  enterIndex,
+}: ProductCardProps) {
   const quantity = useCartStore(selectQuantityOf(product.id));
   const addItem = useCartStore((s) => s.addItem);
   const decrement = useCartStore((s) => s.decrement);
@@ -29,13 +34,20 @@ export function ProductCard({ product, featured = false }: ProductCardProps) {
     openDrawer();
   };
 
+  const enterStyle =
+    enterIndex !== undefined
+      ? ({ animationDelay: `${enterIndex * 70}ms` } as React.CSSProperties)
+      : undefined;
+
   return (
     <article
+      style={enterStyle}
       className={[
         'group relative flex flex-col overflow-hidden',
         'rounded-3xl border border-white/60 bg-white/50 backdrop-blur-xl',
         'shadow-lg hover:shadow-2xl transition-all duration-300',
         featured ? 'md:row-span-2 md:col-span-2' : '',
+        enterIndex !== undefined ? 'product-card-enter' : '',
       ].join(' ')}
     >
       <div

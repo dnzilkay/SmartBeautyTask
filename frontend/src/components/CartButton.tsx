@@ -6,12 +6,14 @@ export function CartButton() {
   const totalCount = useCartStore(selectTotalCount);
   const toggleDrawer = useCartStore((s) => s.toggleDrawer);
 
+  if (totalCount === 0) return null;
+
   return (
     <button
       type="button"
       onClick={toggleDrawer}
       aria-label={`Sepeti aç — ${totalCount} ürün`}
-      className="relative inline-flex items-center gap-2 rounded-full bg-white/70 backdrop-blur-xl border border-white/60 shadow-lg px-4 py-2.5 hover:bg-white/90 hover:shadow-xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:ring-offset-2"
+      className="cart-button-enter relative inline-flex items-center gap-2 rounded-full bg-white/70 backdrop-blur-xl border border-white/60 shadow-lg px-4 py-2.5 hover:bg-white/90 hover:shadow-xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:ring-offset-2"
     >
       <svg
         className="h-5 w-5 text-slate-800"

@@ -18,9 +18,13 @@ export function ProductGrid({ products }: ProductGridProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5 auto-rows-fr">
-      <ProductCard product={featured} featured />
-      {rest.map((product) => (
-        <ProductCard key={product.id} product={product} />
+      <ProductCard product={featured} featured enterIndex={0} />
+      {rest.map((product, i) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          enterIndex={i + 1}
+        />
       ))}
     </div>
   );
