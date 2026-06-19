@@ -88,7 +88,7 @@ function renderPhase(phase: Phase, handlers: PhaseHandlers) {
   }
 
   if (phase.status === 'loading') {
-    return <ProductSkeleton />;
+    return <ProductSkeleton skinType={phase.skinType} />;
   }
 
   if (phase.status === 'error') {

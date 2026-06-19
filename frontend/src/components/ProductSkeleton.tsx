@@ -1,60 +1,115 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { HERO_BY_TYPE } from './SkinTypeSelector';
+import { SKIN_TYPE_LABELS, SKIN_TYPE_THEMES, type SkinType } from '@/lib/types';
+
 interface ProductSkeletonProps {
-  count?: number;
+  skinType?: SkinType;
 }
 
-function SkeletonCard({ featured = false }: { featured?: boolean }) {
+const STEPS = [
+  'Cilt yapını okuyorum',
+  'Sana özel ürünleri tarıyorum',
+  'Önerileri sıralıyorum',
+];
+
+const SCAN_COLOR: Record<SkinType, string> = {
+  dry: '#0EA5E9',
+  oily: '#F59E0B',
+  combination: '#D946EF',
+};
+
+export function ProductSkeleton({ skinType }: ProductSkeletonProps) {
+  const [step, setStep] = useState(0);
+  const theme = skinType ? SKIN_TYPE_THEMES[skinType] : null;
+  const label = skinType ? SKIN_TYPE_LABELS[skinType] : null;
+  const Hero = skinType ? HERO_BY_TYPE[skinType] : null;
+  const scanColor = skinType ? SCAN_COLOR[skinType] : '#94A3B8';
+
+  useEffect(() => {
+    const t1 = window.setTimeout(() => setStep(1), 950);
+    const t2 = window.setTimeout(() => setStep(2), 1900);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, []);
+
   return (
-    <div
-      className={[
-        'rounded-3xl border border-white/60 bg-white/40 backdrop-blur-xl overflow-hidden shadow-lg',
-        featured ? 'md:row-span-2 md:col-span-2' : '',
-      ].join(' ')}
-      aria-hidden
+    <section
+      aria-label="Yapay zeka analiz ediyor"
+      aria-busy="true"
+      aria-live="polite"
+      className="relative w-full max-w-3xl mx-auto py-10 md:py-16"
     >
-      <div
-        className={[
-          'w-full bg-gradient-to-br from-slate-200 to-slate-100 animate-pulse',
-          featured ? 'aspect-[4/3] md:aspect-[3/2]' : 'aspect-[4/3]',
-        ].join(' ')}
-      />
-      <div className="p-5 space-y-3">
-        <div className="h-3 w-20 rounded-full bg-slate-200 animate-pulse" />
-        <div className="h-4 w-3/4 rounded-full bg-slate-200 animate-pulse" />
-        {featured && (
-          <div className="space-y-2 pt-1">
-            <div className="h-3 w-full rounded-full bg-slate-200 animate-pulse" />
-            <div className="h-3 w-5/6 rounded-full bg-slate-200 animate-pulse" />
+      <div className="relative flex flex-col items-center text-center">
+        <div className="relative grid place-items-center h-56 w-56 md:h-64 md:w-64">
+          {theme && (
+            <>
+              <span
+                aria-hidden
+                className={`absolute inset-0 rounded-full bg-gradient-to-br ${theme.glow} blur-3xl opacity-70`}
+              />
+              <span
+                aria-hidden
+                className="scan-ring scan-ring-1 absolute h-32 w-32 md:h-36 md:w-36 rounded-full border"
+                style={{ borderColor: scanColor }}
+              />
+              <span
+                aria-hidden
+                className="scan-ring scan-ring-2 absolute h-32 w-32 md:h-36 md:w-36 rounded-full border"
+                style={{ borderColor: scanColor }}
+              />
+              <span
+                aria-hidden
+                className="scan-ring scan-ring-3 absolute h-32 w-32 md:h-36 md:w-36 rounded-full border"
+                style={{ borderColor: scanColor }}
+              />
+            </>
+          )}
+          <div className="relative z-10 scale-110 md:scale-125">
+            {Hero && <Hero />}
           </div>
-        )}
-        <div className="flex items-center justify-between pt-3">
-          <div className="h-5 w-16 rounded-full bg-slate-200 animate-pulse" />
-          <div className="h-9 w-24 rounded-full bg-slate-200 animate-pulse" />
         </div>
-      </div>
-    </div>
-  );
-}
 
-export function ProductSkeleton({ count = 8 }: ProductSkeletonProps) {
-  return (
-    <section aria-label="Ürünler yükleniyor" aria-busy="true">
-      <div className="text-center mb-10">
-        <p className="text-xs font-medium uppercase tracking-[0.2em] text-rose-500/80 mb-3 animate-pulse">
-          Yapay zeka analiz ediyor
-        </p>
-        <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
-          Sana özel öneriler hazırlanıyor…
+        {label && (
+          <p className={`mt-2 text-[10px] font-medium uppercase tracking-[0.4em] ${theme?.accentText ?? 'text-slate-500'}`}>
+            {label} Cilt Analizi
+          </p>
+        )}
+
+        <h2 className="mt-4 text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">
+          Yapay zeka senin için çalışıyor
         </h2>
-        <p className="mt-3 text-slate-500 max-w-xl mx-auto">
-          Cilt tipine uygun ürünleri seçiyoruz. Bu işlem birkaç saniye sürebilir.
-        </p>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5 auto-rows-fr">
-        <SkeletonCard featured />
-        {Array.from({ length: Math.max(0, count - 1) }).map((_, i) => (
-          <SkeletonCard key={i} />
-        ))}
+        <div className="relative mt-6 min-h-7">
+          <p key={step} className="step-text-fresh text-slate-600">
+            {STEPS[step]}
+          </p>
+        </div>
+
+        <div className="mt-5 flex items-center gap-2">
+          {STEPS.map((_, i) => (
+            <span
+              key={i}
+              className={[
+                'h-1.5 rounded-full transition-all duration-500',
+                i <= step ? `w-8 ${theme?.accentBg ?? 'bg-slate-700'}` : 'w-1.5 bg-slate-300',
+              ].join(' ')}
+            />
+          ))}
+        </div>
+
+        <div className="mt-6 w-56 md:w-72 h-1 rounded-full bg-slate-200/70 overflow-hidden">
+          <div
+            className={[
+              'h-full',
+              theme ? `bg-gradient-to-r ${theme.glow}` : 'bg-rose-300',
+              'analysis-progress',
+            ].join(' ')}
+          />
+        </div>
       </div>
     </section>
   );

@@ -396,7 +396,7 @@ function CombinationHero() {
   );
 }
 
-const HERO_BY_TYPE: Record<SkinType, () => React.ReactElement> = {
+export const HERO_BY_TYPE: Record<SkinType, () => React.ReactElement> = {
   dry: DryHero,
   oily: OilyHero,
   combination: CombinationHero,
@@ -415,19 +415,53 @@ function ContinueButton({
   disabled: boolean;
   onSelect: (t: SkinType) => void;
 }) {
+  const [confirming, setConfirming] = useState(false);
+
+  const handleClick = () => {
+    if (confirming || disabled) return;
+    setConfirming(true);
+    window.setTimeout(() => onSelect(type), 520);
+  };
+
+  const theme = SKIN_TYPE_THEMES[type];
+
   return (
     <div className="relative mt-8 flex justify-center">
+      {confirming && (
+        <span
+          aria-hidden
+          className={`absolute inset-0 -m-10 rounded-full bg-gradient-to-br ${theme.glow} blur-3xl opacity-80 confirm-glow`}
+        />
+      )}
       <button
         type="button"
-        onClick={() => onSelect(type)}
-        disabled={disabled}
+        onClick={handleClick}
+        disabled={disabled || confirming}
         aria-label={`${SKIN_TYPE_LABELS[type]} cilt tipiyle devam et`}
-        className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-slate-900 text-white text-sm font-medium shadow-lg hover:bg-rose-500 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:ring-offset-2"
+        className={[
+          'inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium shadow-lg',
+          'transition-all duration-300 disabled:cursor-not-allowed',
+          'focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:ring-offset-2',
+          confirming
+            ? 'continue-confirming bg-emerald-600 text-white shadow-emerald-500/30 scale-[1.04]'
+            : 'bg-slate-900 text-white hover:bg-rose-500 hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50',
+        ].join(' ')}
       >
-        {SKIN_TYPE_LABELS[type]} ile devam et
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-        </svg>
+        {confirming ? (
+          <>
+            <svg className="h-4 w-4 confirm-tick" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3} aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            Hazır
+          </>
+        ) : (
+          <>
+            {SKIN_TYPE_LABELS[type]} ile devam et
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </>
+        )}
       </button>
     </div>
   );

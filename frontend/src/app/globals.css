@@ -290,6 +290,93 @@ body {
   }
 }
 
+/* Selection confirmation — pulsing glow + tick */
+@keyframes confirm-glow-anim {
+  0% { opacity: 0; transform: scale(0.7); }
+  50% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 0.6; transform: scale(1); }
+}
+.confirm-glow {
+  animation: confirm-glow-anim 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes confirm-tick-anim {
+  0% {
+    stroke-dashoffset: 40;
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+.confirm-tick path {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: confirm-tick-anim 420ms cubic-bezier(0.65, 0, 0.35, 1) 80ms both;
+}
+
+.continue-confirming {
+  box-shadow: 0 10px 28px -6px rgba(16, 185, 129, 0.45);
+}
+
+/* Analysis experience — scanning rings around the orb */
+@keyframes scan-ring-anim {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+.scan-ring {
+  animation: scan-ring-anim 2400ms ease-out infinite;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+.scan-ring-1 { animation-delay: 0ms; }
+.scan-ring-2 { animation-delay: 800ms; }
+.scan-ring-3 { animation-delay: 1600ms; }
+
+/* Analysis progress — fills over 3 seconds */
+@keyframes analysis-progress-anim {
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+.analysis-progress {
+  animation: analysis-progress-anim 2900ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  transform-origin: left;
+}
+
+/* Step text fresh — single mount per step, clean fade-in */
+@keyframes step-text-fresh-anim {
+  0% { opacity: 0; transform: translateY(8px); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.step-text-fresh {
+  animation: step-text-fresh-anim 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-text-fresh {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confirm-glow,
+  .confirm-tick path,
+  .scan-ring,
+  .analysis-progress {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .phase-enter {
     animation: none;
