@@ -18,9 +18,14 @@ body {
   color: var(--foreground);
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   font-feature-settings: 'ss01', 'cv11';
+  overflow-x: hidden;
 }
 
 .app-background {
@@ -29,4 +34,264 @@ body {
     radial-gradient(50% 50% at 90% 0%, rgba(255, 220, 180, 0.55), transparent 70%),
     radial-gradient(70% 60% at 80% 100%, rgba(200, 220, 255, 0.5), transparent 75%),
     var(--background);
+}
+
+@keyframes phase-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(8px);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.phase-enter {
+  animation: phase-enter 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.orbit-stage {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  perspective: 1400px;
+  padding-inline: 1rem;
+  overflow: hidden;
+  /* Pad block to give 3D rotation room without clipping shadows visibly */
+  padding-block: 1rem;
+  /* Round-corner mask so the orbit reads as a single unit */
+  border-radius: 1.5rem;
+}
+
+.orbit-card {
+  grid-area: 1 / 1;
+  transform-style: preserve-3d;
+  transition:
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 600ms ease,
+    filter 600ms ease;
+  will-change: transform, opacity, filter;
+}
+
+.orbit-card[data-slot='center'] {
+  transform: translateX(0) scale(1) rotateY(0deg);
+  opacity: 1;
+  z-index: 30;
+}
+
+.orbit-card[data-slot='right'] {
+  transform: translateX(58%) scale(0.72) rotateY(-22deg);
+  opacity: 0.55;
+  filter: blur(1px);
+  z-index: 10;
+}
+
+.orbit-card[data-slot='left'] {
+  transform: translateX(-58%) scale(0.72) rotateY(22deg);
+  opacity: 0.55;
+  filter: blur(1px);
+  z-index: 10;
+}
+
+.orbit-card[data-slot='right']:hover,
+.orbit-card[data-slot='left']:hover {
+  opacity: 0.8;
+  filter: blur(0);
+}
+
+.orbit-extras {
+  transition: opacity 500ms ease, transform 500ms ease;
+}
+
+.orbit-card[data-slot='left'] .orbit-extras,
+.orbit-card[data-slot='right'] .orbit-extras {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-card,
+  .orbit-extras {
+    transition: none;
+  }
+}
+
+/* Orb — gentle breathing for all three heroes */
+@keyframes orb-breathe-anim {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.035); }
+}
+.orb-breathe {
+  animation: orb-breathe-anim 5400ms ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* Kuru — drifting matte particles */
+@keyframes dry-drift {
+  0%, 100% { transform: translateY(0); opacity: 0.55; }
+  50% { transform: translateY(-3px); opacity: 0.9; }
+}
+.dry-particles circle {
+  animation: dry-drift 4800ms ease-in-out infinite;
+  transform-box: fill-box;
+}
+.dry-particles circle:nth-child(2) { animation-delay: -1.2s; }
+.dry-particles circle:nth-child(3) { animation-delay: -2.4s; }
+.dry-particles circle:nth-child(4) { animation-delay: -3.6s; }
+.dry-particles circle:nth-child(5) { animation-delay: -0.6s; }
+
+/* Yağlı — highlight gently shifts (premium sheen) */
+@keyframes oily-highlight-anim {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-2px, 1px); }
+}
+.oily-highlight-shift {
+  animation: oily-highlight-anim 5200ms ease-in-out infinite;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb-breathe,
+  .dry-particles circle,
+  .oily-highlight-shift {
+    animation: none;
+  }
+}
+
+/* Quiz transitions */
+@keyframes quiz-step-in {
+  0% {
+    opacity: 0;
+    transform: translateX(14px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+.quiz-step-enter {
+  animation: quiz-step-in 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes quiz-option-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.quiz-option {
+  animation: quiz-option-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes quiz-result-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+.quiz-result-enter {
+  animation: quiz-result-in 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes quiz-result-orb-in {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.quiz-result-orb {
+  animation: quiz-result-orb-in 720ms cubic-bezier(0.34, 1.56, 0.64, 1) 80ms both;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-step-enter,
+  .quiz-option,
+  .quiz-result-enter,
+  .quiz-result-orb {
+    animation: none;
+  }
+}
+
+/* Product card stagger entrance */
+@keyframes product-card-in {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+    filter: blur(6px);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+.product-card-enter {
+  animation: product-card-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity, filter;
+}
+
+/* Cart button pop-in */
+@keyframes cart-button-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.cart-button-enter {
+  animation: cart-button-in 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card-enter,
+  .cart-button-enter {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phase-enter {
+    animation: none;
+  }
 }

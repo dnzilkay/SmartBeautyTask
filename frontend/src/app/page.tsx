@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { IntroScreen } from '@/components/IntroScreen';
 import { SkinTypeSelector } from '@/components/SkinTypeSelector';
 import { ProductGrid } from '@/components/ProductGrid';
 import { ProductSkeleton } from '@/components/ProductSkeleton';
@@ -12,13 +13,14 @@ import {
 } from '@/lib/types';
 
 type Phase =
+  | { status: 'intro' }
   | { status: 'selecting' }
   | { status: 'loading'; skinType: SkinType }
   | { status: 'results'; skinType: SkinType; products: Product[] }
   | { status: 'error'; skinType: SkinType; message: string };
 
 export default function HomePage() {
-  const [phase, setPhase] = useState<Phase>({ status: 'selecting' });
+  const [phase, setPhase] = useState<Phase>({ status: 'intro' });
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -57,8 +59,32 @@ export default function HomePage() {
     setPhase({ status: 'selecting' });
   }, []);
 
+  return (
+    <div key={phase.status} className="phase-enter">
+      {renderPhase(phase, {
+        onStart: () => setPhase({ status: 'selecting' }),
+        onSelect: handleSelect,
+        onRetry: runFetch,
+        onReset: handleReset,
+      })}
+    </div>
+  );
+}
+
+interface PhaseHandlers {
+  onStart: () => void;
+  onSelect: (skinType: SkinType) => void;
+  onRetry: (skinType: SkinType) => void;
+  onReset: () => void;
+}
+
+function renderPhase(phase: Phase, handlers: PhaseHandlers) {
+  if (phase.status === 'intro') {
+    return <IntroScreen onStart={handlers.onStart} />;
+  }
+
   if (phase.status === 'selecting') {
-    return <SkinTypeSelector onSelect={handleSelect} />;
+    return <SkinTypeSelector onSelect={handlers.onSelect} />;
   }
 
   if (phase.status === 'loading') {
@@ -91,14 +117,14 @@ export default function HomePage() {
         <div className="flex gap-3 justify-center">
           <button
             type="button"
-            onClick={() => runFetch(phase.skinType)}
+            onClick={() => handlers.onRetry(phase.skinType)}
             className="px-5 py-2.5 rounded-full bg-slate-900 text-white text-sm font-medium hover:bg-rose-500 transition-colors"
           >
             Tekrar dene
           </button>
           <button
             type="button"
-            onClick={handleReset}
+            onClick={handlers.onReset}
             className="px-5 py-2.5 rounded-full border border-slate-300 text-sm font-medium text-slate-700 hover:bg-white/60 transition-colors"
           >
             Geri dön
@@ -124,7 +150,7 @@ export default function HomePage() {
         </div>
         <button
           type="button"
-          onClick={handleReset}
+          onClick={handlers.onReset}
           className="self-start md:self-auto inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-300 bg-white/60 backdrop-blur-md text-sm font-medium text-slate-700 hover:bg-white/90 transition-colors"
         >
           <svg
