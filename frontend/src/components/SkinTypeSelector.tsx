@@ -782,7 +782,7 @@ function QuizResult({
       <p className="mt-4 text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
         Yukarıdaki seçici şimdiden{' '}
         <strong className="text-slate-900">{SKIN_TYPE_LABELS[type]}</strong> kartına
-        geçti. Tamam'a basıp önerilerle devam edebilirsin.
+        geçti. Tamam&apos;a basıp önerilerle devam edebilirsin.
       </p>
 
       <div className="mt-7 flex items-center justify-center gap-3">

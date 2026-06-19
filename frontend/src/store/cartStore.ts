@@ -35,8 +35,11 @@ export const useCartStore = create<CartState>((set) => ({
       if (!existing) return state;
 
       if (existing.quantity <= 1) {
-        const { [productId]: _removed, ...rest } = state.items;
-        return { items: rest };
+        return {
+          items: Object.fromEntries(
+            Object.entries(state.items).filter(([id]) => id !== productId),
+          ),
+        };
       }
 
       return {
@@ -50,8 +53,11 @@ export const useCartStore = create<CartState>((set) => ({
   removeItem: (productId) =>
     set((state) => {
       if (!state.items[productId]) return state;
-      const { [productId]: _removed, ...rest } = state.items;
-      return { items: rest };
+      return {
+        items: Object.fromEntries(
+          Object.entries(state.items).filter(([id]) => id !== productId),
+        ),
+      };
     }),
 
   clear: () => set({ items: {} }),

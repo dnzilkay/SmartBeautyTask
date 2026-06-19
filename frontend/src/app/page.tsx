@@ -54,6 +54,10 @@ export default function HomePage() {
     [runFetch],
   );
 
+  const handleStart = useCallback(() => {
+    setPhase({ status: 'selecting' });
+  }, []);
+
   const handleReset = useCallback(() => {
     abortRef.current?.abort();
     setPhase({ status: 'selecting' });
@@ -61,12 +65,13 @@ export default function HomePage() {
 
   return (
     <div key={phase.status} className="phase-enter">
-      {renderPhase(phase, {
-        onStart: () => setPhase({ status: 'selecting' }),
-        onSelect: handleSelect,
-        onRetry: runFetch,
-        onReset: handleReset,
-      })}
+      <PhaseContent
+        phase={phase}
+        onStart={handleStart}
+        onSelect={handleSelect}
+        onRetry={runFetch}
+        onReset={handleReset}
+      />
     </div>
   );
 }
@@ -78,7 +83,10 @@ interface PhaseHandlers {
   onReset: () => void;
 }
 
-function renderPhase(phase: Phase, handlers: PhaseHandlers) {
+function PhaseContent({
+  phase,
+  ...handlers
+}: PhaseHandlers & { phase: Phase }) {
   if (phase.status === 'intro') {
     return <IntroScreen onStart={handlers.onStart} />;
   }
