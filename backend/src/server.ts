@@ -19,6 +19,16 @@ app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok' });
 });
 
+const TAG_PRIORITY: Record<string, number> = {
+  'Olmazsa Olmaz': 5,
+  'Editor’s Pick': 4,
+  Bestseller: 3,
+  Yeni: 2,
+};
+
+const tagWeight = (tag?: string): number =>
+  tag ? TAG_PRIORITY[tag] ?? 0 : 0;
+
 app.get('/api/products', async (req: Request, res: Response) => {
   const { skinType } = req.query;
 
@@ -31,7 +41,28 @@ app.get('/api/products', async (req: Request, res: Response) => {
   await wait(SIMULATED_DELAY_MS);
 
   const filtered = PRODUCTS.filter((p) => p.skinTypes.includes(skinType));
-  res.json({ skinType, count: filtered.length, products: filtered });
+  const sorted = [...filtered].sort(
+    (a, b) => tagWeight(b.tag) - tagWeight(a.tag),
+  );
+  res.json({ skinType, count: sorted.length, products: sorted });
+});
+
+app.get('/api/products/:id', (req: Request, res: Response) => {
+  const product = PRODUCTS.find((item) => item.id === req.params.id);
+
+  if (!product) {
+    return res.status(404).json({ error: 'Ürün bulunamadı.' });
+  }
+
+  const relatedProducts = PRODUCTS.filter(
+    (item) =>
+      item.id !== product.id &&
+      item.skinTypes.some((skinType) => product.skinTypes.includes(skinType)),
+  )
+    .sort((a, b) => tagWeight(b.tag) - tagWeight(a.tag))
+    .slice(0, 4);
+
+  res.json({ product, relatedProducts });
 });
 
 app.listen(PORT, () => {

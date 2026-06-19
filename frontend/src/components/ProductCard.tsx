@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   selectQuantityOf,
   useCartStore,
@@ -19,6 +21,8 @@ const priceFormatter = new Intl.NumberFormat('tr-TR', {
   maximumFractionDigits: 0,
 });
 
+const SLIDE_INTERVAL_MS = 1200;
+
 export function ProductCard({
   product,
   featured = false,
@@ -28,6 +32,35 @@ export function ProductCard({
   const addItem = useCartStore((s) => s.addItem);
   const decrement = useCartStore((s) => s.decrement);
   const openDrawer = useCartStore((s) => s.openDrawer);
+
+  const images = product.images.length > 0 ? product.images : [''];
+  const hasMultiple = images.length > 1;
+
+  const [imageIndex, setImageIndex] = useState(0);
+  const intervalRef = useRef<number | null>(null);
+
+  const stopCycle = () => {
+    if (intervalRef.current !== null) {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
+  const startCycle = () => {
+    if (!hasMultiple) return;
+    stopCycle();
+    intervalRef.current = window.setInterval(() => {
+      setImageIndex((i) => (i + 1) % images.length);
+    }, SLIDE_INTERVAL_MS);
+  };
+
+  const handleEnter = () => startCycle();
+  const handleLeave = () => {
+    stopCycle();
+    setImageIndex(0);
+  };
+
+  useEffect(() => () => stopCycle(), []);
 
   const handleAdd = () => {
     addItem(product);
@@ -42,6 +75,10 @@ export function ProductCard({
   return (
     <article
       style={enterStyle}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+      onFocus={handleEnter}
+      onBlur={handleLeave}
       className={[
         'group relative flex flex-col overflow-hidden',
         'rounded-3xl border border-white/60 bg-white/50 backdrop-blur-xl',
@@ -56,17 +93,53 @@ export function ProductCard({
           featured ? 'aspect-[4/3] md:aspect-auto md:flex-1' : 'aspect-[4/3]',
         ].join(' ')}
       >
-        <Image
-          src={product.imageUrl}
-          alt={product.name}
-          fill
-          sizes={featured ? '(min-width: 768px) 50vw, 100vw' : '(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 100vw'}
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+        <Link
+          href={`/products/${product.id}`}
+          aria-label={`${product.name} ürün detayını görüntüle`}
+          className="absolute inset-0 z-[1]"
+        >
+          {images.map((url, i) => (
+            <Image
+              key={url + i}
+              src={url}
+              alt={i === imageIndex ? product.name : ''}
+              fill
+              sizes={
+                featured
+                  ? '(min-width: 768px) 50vw, 100vw'
+                  : '(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 100vw'
+              }
+              className={[
+                'absolute inset-0 object-cover transition-all duration-700 ease-out',
+                i === imageIndex
+                  ? 'opacity-100 scale-105'
+                  : 'opacity-0 scale-100',
+              ].join(' ')}
+            />
+          ))}
+        </Link>
+
         {product.tag && (
-          <span className="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-medium bg-white/80 backdrop-blur-md text-rose-600 border border-white/60 shadow-sm">
+          <span className="absolute top-4 left-4 z-10 px-3 py-1 rounded-full text-xs font-medium bg-white/85 backdrop-blur-md text-rose-600 border border-white/60 shadow-sm">
             {product.tag}
           </span>
+        )}
+
+        {hasMultiple && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            {images.map((_, i) => (
+              <span
+                key={i}
+                aria-hidden
+                className={[
+                  'h-1.5 rounded-full transition-all duration-300',
+                  i === imageIndex
+                    ? 'w-6 bg-white shadow-sm'
+                    : 'w-1.5 bg-white/60',
+                ].join(' ')}
+              />
+            ))}
+          </div>
         )}
       </div>
 
@@ -81,7 +154,12 @@ export function ProductCard({
               featured ? 'text-xl md:text-2xl' : 'text-base',
             ].join(' ')}
           >
-            {product.name}
+            <Link
+              href={`/products/${product.id}`}
+              className="transition-colors hover:text-rose-500 focus:outline-none focus-visible:rounded focus-visible:ring-2 focus-visible:ring-rose-400"
+            >
+              {product.name}
+            </Link>
           </h3>
         </div>
 

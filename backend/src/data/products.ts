@@ -1,5 +1,7 @@
 import { Product } from '../types';
 
+const productImage = (fileName: string) => `/products/${fileName}.png`;
+
 export const PRODUCTS: Product[] = [
   {
     id: 'p-001',
@@ -8,7 +10,7 @@ export const PRODUCTS: Product[] = [
     price: 549,
     currency: 'TRY',
     description: 'Hyaluronik asit ve seramid içeren, kuru ciltler için yoğun nemlendirici.',
-    imageUrl: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&q=80',
+    images: [productImage('hydra-boost-cream')],
     skinTypes: ['dry'],
     tag: 'Bestseller',
   },
@@ -19,7 +21,7 @@ export const PRODUCTS: Product[] = [
     price: 729,
     currency: 'TRY',
     description: 'Bitkisel squalane ile cilt bariyerini onaran, ipeksi dokulu yüz yağı.',
-    imageUrl: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=600&q=80',
+    images: [productImage('squalane-face-oil')],
     skinTypes: ['dry', 'combination'],
   },
   {
@@ -29,7 +31,7 @@ export const PRODUCTS: Product[] = [
     price: 899,
     currency: 'TRY',
     description: 'Seramid kompleksi ile cilt bariyerini güçlendiren onarıcı serum.',
-    imageUrl: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=600&q=80',
+    images: [productImage('ceramide-repair-serum')],
     skinTypes: ['dry'],
   },
   {
@@ -39,7 +41,7 @@ export const PRODUCTS: Product[] = [
     price: 1149,
     currency: 'TRY',
     description: 'Shea yağı ve peptit içeren, gece boyu nemi kilitleyen zengin krem.',
-    imageUrl: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=600&q=80',
+    images: [productImage('rich-night-cream')],
     skinTypes: ['dry'],
     tag: 'Yeni',
   },
@@ -51,7 +53,7 @@ export const PRODUCTS: Product[] = [
     price: 459,
     currency: 'TRY',
     description: 'Gözenek görünümünü azaltan, sebumu dengeleyen niasinamid serumu.',
-    imageUrl: 'https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=600&q=80',
+    images: [productImage('niacinamide-serum')],
     skinTypes: ['oily', 'combination'],
     tag: 'Bestseller',
   },
@@ -62,7 +64,7 @@ export const PRODUCTS: Product[] = [
     price: 549,
     currency: 'TRY',
     description: '%2 salisilik asit ile gözenek temizleyen, sivilce karşıtı tonik.',
-    imageUrl: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=600&q=80',
+    images: [productImage('bha-toner')],
     skinTypes: ['oily'],
   },
   {
@@ -72,7 +74,7 @@ export const PRODUCTS: Product[] = [
     price: 629,
     currency: 'TRY',
     description: 'Hafif jel doku, parlama karşıtı mat bitiş veren nemlendirici.',
-    imageUrl: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=600&q=80',
+    images: [productImage('mattifying-gel')],
     skinTypes: ['oily', 'combination'],
   },
   {
@@ -82,7 +84,7 @@ export const PRODUCTS: Product[] = [
     price: 389,
     currency: 'TRY',
     description: 'Aktif kömür ile gözenek arındırıcı, haftalık detoks maskesi.',
-    imageUrl: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=80',
+    images: [productImage('charcoal-mask')],
     skinTypes: ['oily'],
   },
 
@@ -93,7 +95,7 @@ export const PRODUCTS: Product[] = [
     price: 849,
     currency: 'TRY',
     description: 'T-bölgesini matlaştırırken yanakları nemlendiren çift fazlı serum.',
-    imageUrl: 'https://images.unsplash.com/photo-1599733589046-8e147bb19dc6?w=600&q=80',
+    images: [productImage('balance-dual-serum')],
     skinTypes: ['combination'],
     tag: 'Editor’s Pick',
   },
@@ -104,7 +106,7 @@ export const PRODUCTS: Product[] = [
     price: 519,
     currency: 'TRY',
     description: 'Su bazlı hafif losyon, karma cilde dengeli nem sağlar.',
-    imageUrl: 'https://images.unsplash.com/photo-1591375275624-c4c7c4e9bccc?w=600&q=80',
+    images: [productImage('light-hydrating-lotion')],
     skinTypes: ['combination', 'dry'],
   },
   {
@@ -114,7 +116,7 @@ export const PRODUCTS: Product[] = [
     price: 789,
     currency: 'TRY',
     description: 'Aydınlatıcı C vitamini ve E vitamini ile leke karşıtı serum.',
-    imageUrl: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=600&q=80',
+    images: [productImage('vitamin-c-serum')],
     skinTypes: ['combination', 'oily', 'dry'],
   },
   {
@@ -124,7 +126,7 @@ export const PRODUCTS: Product[] = [
     price: 679,
     currency: 'TRY',
     description: 'Geniş spektrumlu mineral filtre, her cilt tipine uygun güneş kremi.',
-    imageUrl: 'https://images.unsplash.com/photo-1556228852-80b6e5eeff06?w=600&q=80',
+    images: [productImage('mineral-spf-50')],
     skinTypes: ['combination', 'oily', 'dry'],
     tag: 'Olmazsa Olmaz',
   },

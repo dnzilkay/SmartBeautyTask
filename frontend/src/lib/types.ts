@@ -76,7 +76,7 @@ export interface Product {
   price: number;
   currency: 'TRY';
   description: string;
-  imageUrl: string;
+  images: string[];
   skinTypes: SkinType[];
   tag?: string;
 }
@@ -85,6 +85,11 @@ export interface ProductsResponse {
   skinType: SkinType;
   count: number;
   products: Product[];
+}
+
+export interface ProductDetailResponse {
+  product: Product;
+  relatedProducts: Product[];
 }
 
 export interface CartItem {

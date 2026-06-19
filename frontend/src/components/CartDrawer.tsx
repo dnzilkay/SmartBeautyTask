@@ -135,7 +135,7 @@ export function CartDrawer() {
                 >
                   <div className="relative h-20 w-20 flex-shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-rose-50 to-amber-50">
                     <Image
-                      src={product.imageUrl}
+                      src={product.images[0]}
                       alt={product.name}
                       fill
                       sizes="80px"

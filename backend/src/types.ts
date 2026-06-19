@@ -9,7 +9,7 @@ export interface Product {
   price: number;
   currency: 'TRY';
   description: string;
-  imageUrl: string;
+  images: string[];
   skinTypes: SkinType[];
   tag?: string;
 }
